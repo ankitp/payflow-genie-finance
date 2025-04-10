@@ -46,7 +46,7 @@ const PaymentList: React.FC = () => {
                 <TableHead>Payment Type</TableHead>
                 <TableHead>Beneficiary</TableHead>
                 <TableHead className="text-right">Amount (₹)</TableHead>
-                <TableHead>Account Number</TableHead>
+                <TableHead className="w-[220px]">Account Number</TableHead>
                 <TableHead>IFSC Code</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
               </TableRow>
@@ -72,7 +72,9 @@ const PaymentList: React.FC = () => {
                       <TableCell className="text-right font-medium">
                         {payment.amount.toLocaleString('en-IN')}
                       </TableCell>
-                      <TableCell>{beneficiary?.accountNumber || 'N/A'}</TableCell>
+                      <TableCell className="font-mono">
+                        {beneficiary?.accountNumber || 'N/A'}
+                      </TableCell>
                       <TableCell>{beneficiary?.ifscCode || 'N/A'}</TableCell>
                       <TableCell className="text-center">
                         <Button

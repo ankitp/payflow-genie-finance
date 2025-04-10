@@ -38,6 +38,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
   const [amount, setAmount] = useState<string>('');
   const [beneficiaryDetails, setBeneficiaryDetails] = useState<Beneficiary | null>(null);
   const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     if (selectedBeneficiary) {
@@ -67,10 +68,18 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
     setSelectedBeneficiary('');
     setAmount('');
     setBeneficiaryDetails(null);
+    setSearchValue('');
     
     toast.success('Payment added successfully');
     onAddPayment();
   };
+
+  // Filter beneficiaries based on search value
+  const filteredBeneficiaries = beneficiaries.filter(b => 
+    b.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+    b.accountNumber.includes(searchValue) ||
+    b.ifscCode.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <Card>
@@ -100,10 +109,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
                 <Command>
-                  <CommandInput placeholder="Search beneficiary..." className="h-9" />
+                  <CommandInput 
+                    placeholder="Search beneficiary..." 
+                    className="h-9"
+                    value={searchValue}
+                    onValueChange={setSearchValue}
+                  />
                   <CommandEmpty>No beneficiary found.</CommandEmpty>
                   <CommandGroup className="max-h-60 overflow-y-auto">
-                    {beneficiaries.map((beneficiary) => (
+                    {filteredBeneficiaries.map((beneficiary) => (
                       <CommandItem
                         key={beneficiary.id}
                         value={beneficiary.name}
@@ -114,7 +128,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
                       >
                         <div className="flex items-center justify-between w-full">
                           <span>{beneficiary.name}</span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 truncate ml-2">
                             {beneficiary.accountNumber}
                           </span>
                         </div>
