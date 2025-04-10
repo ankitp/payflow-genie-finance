@@ -38,7 +38,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
   const [amount, setAmount] = useState<string>('');
   const [beneficiaryDetails, setBeneficiaryDetails] = useState<Beneficiary | null>(null);
   const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (selectedBeneficiary) {
@@ -68,18 +68,20 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
     setSelectedBeneficiary('');
     setAmount('');
     setBeneficiaryDetails(null);
-    setSearchValue('');
+    setSearchQuery('');
     
     toast.success('Payment added successfully');
     onAddPayment();
   };
 
-  // Filter beneficiaries based on search value
-  const filteredBeneficiaries = beneficiaries.filter(b => 
-    b.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-    b.accountNumber.includes(searchValue) ||
-    b.ifscCode.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  // Filter beneficiaries based on search query
+  const filteredBeneficiaries = searchQuery === "" 
+    ? beneficiaries 
+    : beneficiaries.filter((beneficiary) =>
+        beneficiary.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        beneficiary.accountNumber.includes(searchQuery) ||
+        beneficiary.ifscCode.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
   return (
     <Card>
@@ -111,15 +113,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
                 <Command>
                   <CommandInput 
                     placeholder="Search beneficiary..." 
-                    value={searchValue}
-                    onValueChange={setSearchValue}
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
                   />
                   <CommandEmpty>No beneficiary found.</CommandEmpty>
                   <CommandGroup className="max-h-60 overflow-y-auto">
                     {filteredBeneficiaries.map((beneficiary) => (
                       <CommandItem
                         key={beneficiary.id}
-                        value={beneficiary.id}
                         onSelect={() => {
                           setSelectedBeneficiary(beneficiary.id);
                           setOpen(false);
