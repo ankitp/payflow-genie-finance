@@ -111,7 +111,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
                 <Command>
                   <CommandInput 
                     placeholder="Search beneficiary..." 
-                    className="h-9"
                     value={searchValue}
                     onValueChange={setSearchValue}
                   />
@@ -120,7 +119,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
                     {filteredBeneficiaries.map((beneficiary) => (
                       <CommandItem
                         key={beneficiary.id}
-                        value={beneficiary.name}
+                        value={beneficiary.id}
                         onSelect={() => {
                           setSelectedBeneficiary(beneficiary.id);
                           setOpen(false);
