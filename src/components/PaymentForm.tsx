@@ -65,6 +65,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
     onAddPayment();
   };
 
+  const getAccountTypeDisplay = (accountType: string) => {
+    if (accountType === "10") return "Saving Account";
+    if (accountType === "11") return "Current Account";
+    return accountType;
+  };
+
   return (
     <Card>
       <form onSubmit={handleSubmit}>
@@ -114,7 +120,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-xs text-gray-500">Account Type</p>
-                  <p className="text-sm font-medium">{beneficiaryDetails.accountType}</p>
+                  <p className="text-sm font-medium">{getAccountTypeDisplay(beneficiaryDetails.accountType)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Place</p>

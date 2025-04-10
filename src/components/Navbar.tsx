@@ -11,7 +11,11 @@ const Navbar = () => {
     <nav className="w-full bg-white shadow-sm py-4 px-6">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-xl font-bold text-finance-primary flex items-center gap-2">
-          <FileText size={24} />
+          <img 
+            src="/lovable-uploads/c14a1156-f01e-480b-8654-b5b8e7f2779a.png" 
+            alt="Abhaya Exports Logo" 
+            className="h-10 w-auto" 
+          />
           AEPL Payments Dashboard
         </Link>
         <div className="flex space-x-2">

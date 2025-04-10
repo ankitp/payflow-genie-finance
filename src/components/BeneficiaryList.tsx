@@ -51,6 +51,12 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
     }
   };
 
+  const getAccountTypeDisplay = (accountType: string) => {
+    if (accountType === "10") return "Saving Account";
+    if (accountType === "11") return "Current Account";
+    return accountType;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center relative">
@@ -67,11 +73,11 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">Beneficiary Name</TableHead>
-              <TableHead className="w-[220px]">Account Number</TableHead>
+              <TableHead className="w-[250px]">Beneficiary Name</TableHead>
+              <TableHead className="w-[250px]">Account Number</TableHead>
               <TableHead className="w-[120px]">IFSC Code</TableHead>
-              <TableHead>Account Type</TableHead>
-              <TableHead>Place</TableHead>
+              <TableHead className="w-[150px]">Account Type</TableHead>
+              <TableHead className="w-[100px]">Place</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -82,7 +88,7 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
                   <TableCell className="font-medium">{beneficiary.name}</TableCell>
                   <TableCell className="font-mono">{beneficiary.accountNumber}</TableCell>
                   <TableCell>{beneficiary.ifscCode}</TableCell>
-                  <TableCell>{beneficiary.accountType}</TableCell>
+                  <TableCell>{getAccountTypeDisplay(beneficiary.accountType)}</TableCell>
                   <TableCell>{beneficiary.place}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
