@@ -4,12 +4,17 @@ import { useAppContext, Beneficiary, Payment } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Card,
   CardContent,
@@ -19,8 +24,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronsUpDown, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface PaymentFormProps {
   onAddPayment: () => void;
@@ -31,6 +37,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [beneficiaryDetails, setBeneficiaryDetails] = useState<Beneficiary | null>(null);
+  const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (selectedBeneficiary) {
@@ -71,6 +79,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
     return accountType;
   };
 
+  const filteredBeneficiaries = beneficiaries.filter(beneficiary => {
+    const searchLower = searchValue.toLowerCase();
+    return (
+      beneficiary.name.toLowerCase().includes(searchLower) ||
+      beneficiary.accountNumber.includes(searchValue) ||
+      beneficiary.ifscCode.toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <Card>
       <form onSubmit={handleSubmit}>
@@ -83,26 +100,58 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="beneficiary">Beneficiary</Label>
-            <Select 
-              value={selectedBeneficiary} 
-              onValueChange={setSelectedBeneficiary}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a beneficiary..." />
-              </SelectTrigger>
-              <SelectContent>
-                {beneficiaries.map((beneficiary) => (
-                  <SelectItem key={beneficiary.id} value={beneficiary.id}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>{beneficiary.name}</span>
-                      <span className="text-xs text-gray-500 truncate ml-2">
-                        {beneficiary.accountNumber}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-full justify-between"
+                >
+                  {selectedBeneficiary ? (
+                    beneficiaries.find((beneficiary) => beneficiary.id === selectedBeneficiary)?.name
+                  ) : (
+                    "Select a beneficiary..."
+                  )}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search beneficiary..." 
+                    className="h-9"
+                    value={searchValue}
+                    onValueChange={setSearchValue}
+                  />
+                  <CommandEmpty>No beneficiary found.</CommandEmpty>
+                  <CommandGroup className="max-h-64 overflow-y-auto">
+                    {filteredBeneficiaries.map((beneficiary) => (
+                      <CommandItem
+                        key={beneficiary.id}
+                        value={beneficiary.id}
+                        onSelect={(currentValue) => {
+                          setSelectedBeneficiary(currentValue);
+                          setOpen(false);
+                          setSearchValue("");
+                        }}
+                        className="flex justify-between"
+                      >
+                        <div className="flex flex-col">
+                          <span>{beneficiary.name}</span>
+                          <span className="text-xs text-gray-500 font-mono">
+                            {beneficiary.accountNumber}
+                          </span>
+                        </div>
+                        {selectedBeneficiary === beneficiary.id && (
+                          <Check className="h-4 w-4 text-green-600" />
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           
           {beneficiaryDetails && (

@@ -4,6 +4,13 @@ import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Card,
   CardContent,
@@ -36,11 +43,15 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAccountTypeChange = (value: string) => {
+    setFormData(prev => ({ ...prev, accountType: value }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
-    if (!formData.name || !formData.accountNumber || !formData.ifscCode) {
+    if (!formData.name || !formData.accountNumber || !formData.ifscCode || !formData.accountType) {
       toast.error('Please fill all required fields');
       return;
     }
@@ -105,14 +116,19 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
             </div>
             <div className="space-y-2">
               <Label htmlFor="accountType">Account Type *</Label>
-              <Input
-                id="accountType"
-                name="accountType"
-                placeholder="Enter account type"
+              <Select
                 value={formData.accountType}
-                onChange={handleChange}
-                required
-              />
+                onValueChange={handleAccountTypeChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select account type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">Saving Account</SelectItem>
+                  <SelectItem value="11">Current Account</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
