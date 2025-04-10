@@ -67,9 +67,10 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[250px]">Beneficiary Name</TableHead>
-              <TableHead>Account Number</TableHead>
-              <TableHead>IFSC Code</TableHead>
+              <TableHead className="w-[200px]">Beneficiary Name</TableHead>
+              <TableHead className="w-[220px]">Account Number</TableHead>
+              <TableHead className="w-[120px]">IFSC Code</TableHead>
+              <TableHead>Account Type</TableHead>
               <TableHead>Place</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -79,8 +80,9 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
               filteredBeneficiaries.map((beneficiary) => (
                 <TableRow key={beneficiary.id}>
                   <TableCell className="font-medium">{beneficiary.name}</TableCell>
-                  <TableCell>{beneficiary.accountNumber}</TableCell>
+                  <TableCell className="font-mono">{beneficiary.accountNumber}</TableCell>
                   <TableCell>{beneficiary.ifscCode}</TableCell>
+                  <TableCell>{beneficiary.accountType}</TableCell>
                   <TableCell>{beneficiary.place}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -106,7 +108,7 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No beneficiaries found.
                 </TableCell>
               </TableRow>

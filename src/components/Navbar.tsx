@@ -12,7 +12,7 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-xl font-bold text-finance-primary flex items-center gap-2">
           <FileText size={24} />
-          PayFlow Genie
+          AEPL Payments Dashboard
         </Link>
         <div className="flex space-x-2">
           <Button

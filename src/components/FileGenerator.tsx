@@ -89,7 +89,7 @@ const FileGenerator: React.FC = () => {
             The file will be generated in the specific format required by your bank:
           </p>
           <p className="text-xs font-mono bg-muted p-2 rounded overflow-x-auto whitespace-nowrap">
-            NEFT|ABHAYAEXPORTSPVTLTD|100000|FDRL0005555|AMIT SHUKLA|55550103142988|10|MUMBAI|email@example.com|9876543210|E|Payment|90909|Remarks
+            NEFT|ABHAYAEXPORTSPVTLTD|Amount|IFSC Code|BeneficiaryName|Account Number|10|MUMBAI|email@example.com|Mobile number|E|Payment|90909|Remarks
           </p>
           <div className="pt-2">
             <p className="text-sm font-medium">File will contain {payments.length} payment entries</p>

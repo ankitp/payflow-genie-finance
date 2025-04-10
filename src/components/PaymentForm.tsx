@@ -4,12 +4,17 @@ import { useAppContext, Beneficiary, Payment } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Card,
   CardContent,
@@ -19,7 +24,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface PaymentFormProps {
@@ -31,6 +37,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [beneficiaryDetails, setBeneficiaryDetails] = useState<Beneficiary | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (selectedBeneficiary) {
@@ -77,21 +84,52 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="beneficiary">Beneficiary</Label>
-            <Select
-              value={selectedBeneficiary}
-              onValueChange={setSelectedBeneficiary}
-            >
-              <SelectTrigger id="beneficiary">
-                <SelectValue placeholder="Select a beneficiary" />
-              </SelectTrigger>
-              <SelectContent>
-                {beneficiaries.map(beneficiary => (
-                  <SelectItem key={beneficiary.id} value={beneficiary.id}>
-                    {beneficiary.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-full justify-between text-left font-normal"
+                >
+                  {selectedBeneficiary
+                    ? beneficiaries.find((b) => b.id === selectedBeneficiary)?.name
+                    : "Select a beneficiary..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search beneficiary..." className="h-9" />
+                  <CommandEmpty>No beneficiary found.</CommandEmpty>
+                  <CommandGroup className="max-h-60 overflow-y-auto">
+                    {beneficiaries.map((beneficiary) => (
+                      <CommandItem
+                        key={beneficiary.id}
+                        value={beneficiary.name}
+                        onSelect={() => {
+                          setSelectedBeneficiary(beneficiary.id);
+                          setOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <span>{beneficiary.name}</span>
+                          <span className="text-xs text-gray-500">
+                            {beneficiary.accountNumber}
+                          </span>
+                        </div>
+                        <Check
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            selectedBeneficiary === beneficiary.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           
           {beneficiaryDetails && (
@@ -99,7 +137,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-xs text-gray-500">Account Number</p>
-                  <p className="text-sm font-medium">{beneficiaryDetails.accountNumber}</p>
+                  <p className="text-sm font-medium font-mono">{beneficiaryDetails.accountNumber}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">IFSC Code</p>
