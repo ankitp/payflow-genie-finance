@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,37 +37,10 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
     email: beneficiaryToEdit?.email || '',
     mobile: beneficiaryToEdit?.mobile || '',
   });
-  
-  const [formattedAccountNumber, setFormattedAccountNumber] = useState('');
-
-  useEffect(() => {
-    if (beneficiaryToEdit?.accountNumber) {
-      // Format the account number for display
-      setFormattedAccountNumber(formatAccountNumber(beneficiaryToEdit.accountNumber));
-    }
-  }, [beneficiaryToEdit]);
-
-  // Format account number with spaces every 4 digits
-  const formatAccountNumber = (value: string): string => {
-    // Remove any existing spaces first
-    const cleanValue = value.replace(/\s/g, '');
-    // Add a space after every 4 digits
-    return cleanValue.replace(/(\d{4})(?=\d)/g, '$1 ');
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
-    if (name === 'accountNumber') {
-      // Remove spaces for storing the actual value
-      const cleanValue = value.replace(/\s/g, '');
-      setFormData(prev => ({ ...prev, [name]: cleanValue }));
-      
-      // Format with spaces for display
-      setFormattedAccountNumber(formatAccountNumber(cleanValue));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleAccountTypeChange = (value: string) => {
@@ -122,10 +95,9 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
                 id="accountNumber"
                 name="accountNumber"
                 placeholder="Enter account number"
-                value={formattedAccountNumber}
+                value={formData.accountNumber}
                 onChange={handleChange}
                 required
-                className="font-mono"
               />
             </div>
           </div>
