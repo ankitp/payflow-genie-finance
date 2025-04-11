@@ -31,26 +31,35 @@ const ExcelImport: React.FC = () => {
         
         console.log('Excel data loaded:', jsonData);
         
+        if (jsonData.length === 0) {
+          toast.error('No data found in the Excel file');
+          setIsUploading(false);
+          return;
+        }
+        
         // Map the Excel data to our Beneficiary type with more flexible field mapping
         const beneficiaries = jsonData.map((row: any) => {
           // Function to find the first non-empty value from possible field names
           const getField = (possibleNames: string[]) => {
             for (const name of possibleNames) {
               if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
-                return row[name].toString().trim();
+                return String(row[name]).toString().trim();
               }
             }
             return '';
           };
 
+          // Log each row to help debug
+          console.log('Processing row:', row);
+
           // Define possible field names for each property
-          const nameFields = ['name', 'Name', 'NAME', 'beneficiary name', 'Beneficiary Name', 'BENEFICIARY NAME'];
-          const accountFields = ['accountNumber', 'AccountNumber', 'Account Number', 'ACCOUNT NUMBER', 'account', 'Account', 'ACCOUNT'];
-          const ifscFields = ['ifscCode', 'IfscCode', 'IFSC Code', 'IFSC CODE', 'ifsc', 'Ifsc', 'IFSC'];
-          const accountTypeFields = ['accountType', 'AccountType', 'Account Type', 'ACCOUNT TYPE', 'type', 'Type', 'TYPE'];
+          const nameFields = ['name', 'Name', 'NAME', 'beneficiary name', 'Beneficiary Name', 'BENEFICIARY NAME', 'BeneficiaryName'];
+          const accountFields = ['accountNumber', 'AccountNumber', 'Account Number', 'ACCOUNT NUMBER', 'account', 'Account', 'ACCOUNT', 'Account No', 'account no', 'ACCOUNT NO', 'Account_Number'];
+          const ifscFields = ['ifscCode', 'IfscCode', 'IFSC Code', 'IFSC CODE', 'ifsc', 'Ifsc', 'IFSC', 'IFSC_Code', 'ifsc_code'];
+          const accountTypeFields = ['accountType', 'AccountType', 'Account Type', 'ACCOUNT TYPE', 'type', 'Type', 'TYPE', 'Account_Type'];
           const placeFields = ['place', 'Place', 'PLACE', 'city', 'City', 'CITY', 'location', 'Location', 'LOCATION'];
-          const emailFields = ['email', 'Email', 'EMAIL', 'e-mail', 'E-mail', 'E-MAIL'];
-          const mobileFields = ['mobile', 'Mobile', 'MOBILE', 'phone', 'Phone', 'PHONE', 'contact', 'Contact', 'CONTACT'];
+          const emailFields = ['email', 'Email', 'EMAIL', 'e-mail', 'E-mail', 'E-MAIL', 'Email_Address'];
+          const mobileFields = ['mobile', 'Mobile', 'MOBILE', 'phone', 'Phone', 'PHONE', 'contact', 'Contact', 'CONTACT', 'Mobile_Number', 'Phone_Number'];
 
           const name = getField(nameFields);
           const accountNumber = getField(accountFields);
@@ -58,15 +67,16 @@ const ExcelImport: React.FC = () => {
           
           // For account type, convert text values to codes if needed
           let accountType = getField(accountTypeFields);
-          if (accountType.toLowerCase().includes('sav')) {
+          if (!accountType || accountType === '') {
+            accountType = '10'; // Default to savings if not specified
+          } else if (accountType.toLowerCase().includes('sav')) {
             accountType = '10';
           } else if (accountType.toLowerCase().includes('cur')) {
             accountType = '11';
-          } else if (!accountType) {
-            accountType = '10'; // Default to savings if not specified
           }
 
-          return {
+          // Create the beneficiary object
+          const beneficiary = {
             name,
             accountNumber,
             ifscCode,
@@ -75,9 +85,10 @@ const ExcelImport: React.FC = () => {
             email: getField(emailFields),
             mobile: getField(mobileFields),
           };
+          
+          console.log('Mapped beneficiary:', beneficiary);
+          return beneficiary;
         });
-
-        console.log('Mapped beneficiaries:', beneficiaries);
 
         // Validate data - at minimum we need name, account number and IFSC
         const validBeneficiaries = beneficiaries.filter(b => 
