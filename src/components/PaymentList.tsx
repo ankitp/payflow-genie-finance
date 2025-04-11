@@ -26,17 +26,9 @@ const PaymentList: React.FC = () => {
     return amount < 200000 ? 'NEFT' : 'RTGS';
   };
 
-  // Function to ensure account numbers display properly without scientific notation
+  // Function to ensure account numbers display properly
   const formatAccountNumber = (accountNumber: string) => {
-    // Format the account number with spaces for readability
-    return accountNumber.replace(/(\d)(?=(\d{4})+(?!\d))/g, '$1 ');
-  };
-
-  // Get account type display
-  const getAccountTypeDisplay = (accountType: string) => {
-    if (accountType === "10") return "Saving Account";
-    if (accountType === "11") return "Current Account";
-    return accountType;
+    return accountNumber.toString();
   };
 
   // Calculate total amount
@@ -61,7 +53,6 @@ const PaymentList: React.FC = () => {
                 <TableHead className="text-right">Amount (₹)</TableHead>
                 <TableHead className="w-[220px]">Account Number</TableHead>
                 <TableHead>IFSC Code</TableHead>
-                <TableHead>Account Type</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -90,9 +81,6 @@ const PaymentList: React.FC = () => {
                         {beneficiary ? formatAccountNumber(beneficiary.accountNumber) : 'N/A'}
                       </TableCell>
                       <TableCell>{beneficiary?.ifscCode || 'N/A'}</TableCell>
-                      <TableCell>
-                        {beneficiary ? getAccountTypeDisplay(beneficiary.accountType) : 'N/A'}
-                      </TableCell>
                       <TableCell className="text-center">
                         <Button
                           size="sm"
@@ -108,7 +96,7 @@ const PaymentList: React.FC = () => {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     No payment entries added. Use the form to add payments.
                   </TableCell>
                 </TableRow>
