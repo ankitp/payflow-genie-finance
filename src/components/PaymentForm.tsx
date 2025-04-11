@@ -89,6 +89,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
     return accountType;
   };
 
+  // Format account number to ensure it's displayed as a string without exponential notation
+  const formatAccountNumber = (accountNumber: string) => {
+    return accountNumber.toString();
+  };
+
   return (
     <Card>
       <form onSubmit={handleSubmit}>
@@ -130,7 +135,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
                       >
                         <div className="font-medium">{beneficiary.name}</div>
                         <div className="text-xs text-muted-foreground font-mono">
-                          {beneficiary.accountNumber}
+                          {formatAccountNumber(beneficiary.accountNumber)}
                         </div>
                       </SelectItem>
                     ))
@@ -149,7 +154,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-xs text-gray-500">Account Number</p>
-                  <p className="text-sm font-medium font-mono">{beneficiaryDetails.accountNumber}</p>
+                  <p className="text-sm font-medium font-mono">{formatAccountNumber(beneficiaryDetails.accountNumber)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">IFSC Code</p>

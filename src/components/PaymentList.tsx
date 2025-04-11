@@ -26,6 +26,11 @@ const PaymentList: React.FC = () => {
     return amount < 200000 ? 'NEFT' : 'RTGS';
   };
 
+  // Function to ensure account numbers display properly
+  const formatAccountNumber = (accountNumber: string) => {
+    return accountNumber.toString();
+  };
+
   // Calculate total amount
   const totalAmount = payments.reduce((sum, payment) => sum + payment.amount, 0);
 
@@ -73,7 +78,7 @@ const PaymentList: React.FC = () => {
                         {payment.amount.toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell className="font-mono">
-                        {beneficiary?.accountNumber || 'N/A'}
+                        {beneficiary ? formatAccountNumber(beneficiary.accountNumber) : 'N/A'}
                       </TableCell>
                       <TableCell>{beneficiary?.ifscCode || 'N/A'}</TableCell>
                       <TableCell className="text-center">

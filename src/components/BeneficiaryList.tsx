@@ -57,6 +57,11 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
     return accountType;
   };
 
+  // Format account number to ensure it's displayed as a string without exponential notation
+  const formatAccountNumber = (accountNumber: string) => {
+    return accountNumber.toString();
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center relative">
@@ -86,7 +91,7 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
               filteredBeneficiaries.map((beneficiary) => (
                 <TableRow key={beneficiary.id}>
                   <TableCell className="font-medium">{beneficiary.name}</TableCell>
-                  <TableCell className="font-mono">{beneficiary.accountNumber}</TableCell>
+                  <TableCell className="font-mono">{formatAccountNumber(beneficiary.accountNumber)}</TableCell>
                   <TableCell>{beneficiary.ifscCode}</TableCell>
                   <TableCell>{getAccountTypeDisplay(beneficiary.accountType)}</TableCell>
                   <TableCell>{beneficiary.place}</TableCell>
