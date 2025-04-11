@@ -57,9 +57,10 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
     return accountType;
   };
 
-  // Format account number to ensure it's displayed as a string without exponential notation
+  // Format account number to properly display large numbers without scientific notation
   const formatAccountNumber = (accountNumber: string) => {
-    return accountNumber.toString();
+    // Ensure it's a string and prevent scientific notation
+    return accountNumber.replace(/(\d)(?=(\d{4})+(?!\d))/g, '$1 ');
   };
 
   return (
