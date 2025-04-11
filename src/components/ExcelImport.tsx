@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileExcel, Upload, X } from 'lucide-react';
+import { FileSpreadsheet, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 
@@ -96,7 +96,7 @@ const ExcelImport: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-          <FileExcel className="h-10 w-10 text-gray-400 mb-2" />
+          <FileSpreadsheet className="h-10 w-10 text-gray-400 mb-2" />
           <p className="text-sm text-gray-500">
             Drag and drop an Excel file here, or click to browse
           </p>

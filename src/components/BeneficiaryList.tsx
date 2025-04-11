@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Edit, Trash2, Search, Check, X, FileExcel } from 'lucide-react';
+import { Edit, Trash2, Search, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BeneficiaryListProps {
@@ -89,9 +88,7 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
     return accountType;
   };
 
-  // Format account number to properly display large numbers without scientific notation
   const formatAccountNumber = (accountNumber: string) => {
-    // Ensure it's a string and prevent scientific notation
     return accountNumber.replace(/(\d)(?=(\d{4})+(?!\d))/g, '$1 ');
   };
 

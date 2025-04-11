@@ -6,7 +6,7 @@ import BeneficiaryList from '@/components/BeneficiaryList';
 import CSVImport from '@/components/CSVImport';
 import ExcelImport from '@/components/ExcelImport';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload, FileExcel } from 'lucide-react';
+import { Plus, Upload, FileSpreadsheet } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Beneficiary } from '@/context/AppContext';
 
@@ -38,7 +38,7 @@ const Beneficiaries = () => {
                 Import CSV
               </Button>
               <Button onClick={() => setActiveTab('import-excel')} variant="outline">
-                <FileExcel size={16} className="mr-2" />
+                <FileSpreadsheet size={16} className="mr-2" />
                 Import Excel
               </Button>
               <Button onClick={() => setIsAdding(true)} className="bg-finance-primary">
