@@ -25,6 +25,7 @@ interface AppContextType {
   addBeneficiary: (beneficiary: Omit<Beneficiary, 'id'>) => void;
   updateBeneficiary: (id: string, beneficiary: Partial<Beneficiary>) => void;
   deleteBeneficiary: (id: string) => void;
+  deleteMultipleBeneficiaries: (ids: string[]) => void;
   addPayment: (payment: Omit<Payment, 'id'>) => void;
   updatePayment: (id: string, payment: Partial<Payment>) => void;
   deletePayment: (id: string) => void;
@@ -96,6 +97,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPayments(prev => prev.filter(payment => payment.beneficiaryId !== id));
   };
 
+  const deleteMultipleBeneficiaries = (ids: string[]) => {
+    setBeneficiaries(prev => prev.filter(item => !ids.includes(item.id)));
+    setPayments(prev => prev.filter(payment => !ids.includes(payment.beneficiaryId)));
+  };
+
   const importBeneficiaries = (newBeneficiaries: Omit<Beneficiary, 'id'>[]) => {
     const newBeneficiariesWithIds = newBeneficiaries.map(beneficiary => ({
       ...beneficiary,
@@ -135,6 +141,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addBeneficiary,
         updateBeneficiary,
         deleteBeneficiary,
+        deleteMultipleBeneficiaries,
         addPayment,
         updatePayment,
         deletePayment,

@@ -4,8 +4,9 @@ import Layout from '@/components/Layout';
 import BeneficiaryForm from '@/components/BeneficiaryForm';
 import BeneficiaryList from '@/components/BeneficiaryList';
 import CSVImport from '@/components/CSVImport';
+import ExcelImport from '@/components/ExcelImport';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload } from 'lucide-react';
+import { Plus, Upload, FileExcel } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Beneficiary } from '@/context/AppContext';
 
@@ -32,9 +33,13 @@ const Beneficiaries = () => {
           <h1 className="text-2xl font-bold text-gray-800">Beneficiary Management</h1>
           {activeTab === 'list' && !isAdding && (
             <div className="flex space-x-2">
-              <Button onClick={() => setActiveTab('import')} variant="outline">
+              <Button onClick={() => setActiveTab('import-csv')} variant="outline">
                 <Upload size={16} className="mr-2" />
                 Import CSV
+              </Button>
+              <Button onClick={() => setActiveTab('import-excel')} variant="outline">
+                <FileExcel size={16} className="mr-2" />
+                Import Excel
               </Button>
               <Button onClick={() => setIsAdding(true)} className="bg-finance-primary">
                 <Plus size={16} className="mr-2" />
@@ -48,15 +53,19 @@ const Beneficiaries = () => {
           <BeneficiaryForm onCancel={handleCancel} />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="list">Beneficiary List</TabsTrigger>
-              <TabsTrigger value="import">Import CSV</TabsTrigger>
+              <TabsTrigger value="import-csv">Import CSV</TabsTrigger>
+              <TabsTrigger value="import-excel">Import Excel</TabsTrigger>
             </TabsList>
             <TabsContent value="list" className="mt-4">
               <BeneficiaryList onEdit={handleEdit} />
             </TabsContent>
-            <TabsContent value="import" className="mt-4">
+            <TabsContent value="import-csv" className="mt-4">
               <CSVImport />
+            </TabsContent>
+            <TabsContent value="import-excel" className="mt-4">
+              <ExcelImport />
             </TabsContent>
             <TabsContent value="add" className="mt-4">
               <BeneficiaryForm 

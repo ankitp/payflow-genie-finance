@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -21,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Edit, Trash2, Search } from 'lucide-react';
+import { Edit, Trash2, Search, Check, X, FileExcel } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BeneficiaryListProps {
@@ -29,9 +30,11 @@ interface BeneficiaryListProps {
 }
 
 const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
-  const { beneficiaries, deleteBeneficiary } = useAppContext();
+  const { beneficiaries, deleteBeneficiary, deleteMultipleBeneficiaries } = useAppContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [beneficiaryToDelete, setBeneficiaryToDelete] = useState<Beneficiary | null>(null);
+  const [selectedBeneficiaries, setSelectedBeneficiaries] = useState<string[]>([]);
+  const [showDeleteSelected, setShowDeleteSelected] = useState<boolean>(false);
 
   const filteredBeneficiaries = beneficiaries.filter(beneficiary =>
     beneficiary.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,6 +54,35 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
     }
   };
 
+  const handleToggleSelect = (id: string) => {
+    setSelectedBeneficiaries(prev => 
+      prev.includes(id) 
+        ? prev.filter(beneficiaryId => beneficiaryId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedBeneficiaries.length === filteredBeneficiaries.length) {
+      setSelectedBeneficiaries([]);
+    } else {
+      setSelectedBeneficiaries(filteredBeneficiaries.map(b => b.id));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    setShowDeleteSelected(true);
+  };
+
+  const confirmDeleteSelected = () => {
+    if (selectedBeneficiaries.length > 0) {
+      deleteMultipleBeneficiaries(selectedBeneficiaries);
+      toast.success(`${selectedBeneficiaries.length} beneficiaries deleted successfully`);
+      setSelectedBeneficiaries([]);
+      setShowDeleteSelected(false);
+    }
+  };
+
   const getAccountTypeDisplay = (accountType: string) => {
     if (accountType === "10") return "Saving Account";
     if (accountType === "11") return "Current Account";
@@ -65,20 +97,54 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center relative">
-        <Search className="absolute left-3 text-gray-400" size={18} />
-        <Input
-          placeholder="Search beneficiaries..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center relative w-full max-w-sm">
+          <Search className="absolute left-3 text-gray-400" size={18} />
+          <Input
+            placeholder="Search beneficiaries..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="flex gap-2">
+          {selectedBeneficiaries.length > 0 ? (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteSelected}
+              className="flex items-center gap-1"
+            >
+              <Trash2 size={16} />
+              Delete Selected ({selectedBeneficiaries.length})
+            </Button>
+          ) : null}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSelectAll}
+            className="flex items-center gap-1"
+          >
+            {selectedBeneficiaries.length === filteredBeneficiaries.length && filteredBeneficiaries.length > 0 ? (
+              <>
+                <X size={16} />
+                Deselect All
+              </>
+            ) : (
+              <>
+                <Check size={16} />
+                Select All
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="border rounded-lg overflow-hidden bg-white">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]"></TableHead>
               <TableHead className="w-[250px]">Beneficiary Name</TableHead>
               <TableHead className="w-[250px]">Account Number</TableHead>
               <TableHead className="w-[120px]">IFSC Code</TableHead>
@@ -91,6 +157,12 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
             {filteredBeneficiaries.length > 0 ? (
               filteredBeneficiaries.map((beneficiary) => (
                 <TableRow key={beneficiary.id}>
+                  <TableCell>
+                    <Checkbox 
+                      checked={selectedBeneficiaries.includes(beneficiary.id)}
+                      onCheckedChange={() => handleToggleSelect(beneficiary.id)}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{beneficiary.name}</TableCell>
                   <TableCell className="font-mono">{formatAccountNumber(beneficiary.accountNumber)}</TableCell>
                   <TableCell>{beneficiary.ifscCode}</TableCell>
@@ -120,7 +192,7 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No beneficiaries found.
                 </TableCell>
               </TableRow>
@@ -142,6 +214,23 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({ onEdit }) => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteSelected} onOpenChange={setShowDeleteSelected}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedBeneficiaries.length} beneficiaries?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete all selected beneficiaries and remove their data from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteSelected} className="bg-red-600 hover:bg-red-700">
+              Delete Selected
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
