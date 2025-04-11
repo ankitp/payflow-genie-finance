@@ -29,29 +29,65 @@ const ExcelImport: React.FC = () => {
         const sheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(sheet);
         
-        // Map the Excel data to our Beneficiary type
+        console.log('Excel data loaded:', jsonData);
+        
+        // Map the Excel data to our Beneficiary type with more flexible field mapping
         const beneficiaries = jsonData.map((row: any) => {
+          // Function to find the first non-empty value from possible field names
+          const getField = (possibleNames: string[]) => {
+            for (const name of possibleNames) {
+              if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+                return row[name].toString().trim();
+              }
+            }
+            return '';
+          };
+
+          // Define possible field names for each property
+          const nameFields = ['name', 'Name', 'NAME', 'beneficiary name', 'Beneficiary Name', 'BENEFICIARY NAME'];
+          const accountFields = ['accountNumber', 'AccountNumber', 'Account Number', 'ACCOUNT NUMBER', 'account', 'Account', 'ACCOUNT'];
+          const ifscFields = ['ifscCode', 'IfscCode', 'IFSC Code', 'IFSC CODE', 'ifsc', 'Ifsc', 'IFSC'];
+          const accountTypeFields = ['accountType', 'AccountType', 'Account Type', 'ACCOUNT TYPE', 'type', 'Type', 'TYPE'];
+          const placeFields = ['place', 'Place', 'PLACE', 'city', 'City', 'CITY', 'location', 'Location', 'LOCATION'];
+          const emailFields = ['email', 'Email', 'EMAIL', 'e-mail', 'E-mail', 'E-MAIL'];
+          const mobileFields = ['mobile', 'Mobile', 'MOBILE', 'phone', 'Phone', 'PHONE', 'contact', 'Contact', 'CONTACT'];
+
+          const name = getField(nameFields);
+          const accountNumber = getField(accountFields);
+          const ifscCode = getField(ifscFields);
+          
+          // For account type, convert text values to codes if needed
+          let accountType = getField(accountTypeFields);
+          if (accountType.toLowerCase().includes('sav')) {
+            accountType = '10';
+          } else if (accountType.toLowerCase().includes('cur')) {
+            accountType = '11';
+          } else if (!accountType) {
+            accountType = '10'; // Default to savings if not specified
+          }
+
           return {
-            name: row.name || row.Name || row.NAME || '',
-            accountNumber: (row.accountNumber || row.AccountNumber || row['Account Number'] || row['ACCOUNT NUMBER'] || '')
-              .toString(),
-            ifscCode: row.ifscCode || row.IfscCode || row['IFSC Code'] || row['IFSC CODE'] || '',
-            accountType: (row.accountType || row.AccountType || row['Account Type'] || row['ACCOUNT TYPE'] || '10')
-              .toString(),
-            place: row.place || row.Place || row.PLACE || '',
-            email: row.email || row.Email || row.EMAIL || '',
-            mobile: (row.mobile || row.Mobile || row.MOBILE || '')
-              .toString(),
+            name,
+            accountNumber,
+            ifscCode,
+            accountType,
+            place: getField(placeFields),
+            email: getField(emailFields),
+            mobile: getField(mobileFields),
           };
         });
 
-        // Validate data
+        console.log('Mapped beneficiaries:', beneficiaries);
+
+        // Validate data - at minimum we need name, account number and IFSC
         const validBeneficiaries = beneficiaries.filter(b => 
           b.name && b.accountNumber && b.ifscCode
         );
         
+        console.log('Valid beneficiaries:', validBeneficiaries);
+        
         if (validBeneficiaries.length === 0) {
-          toast.error('No valid beneficiary data found in the file');
+          toast.error('No valid beneficiary data found in the file. Please ensure your file has columns for name, account number, and IFSC code.');
         } else if (validBeneficiaries.length < beneficiaries.length) {
           importBeneficiaries(validBeneficiaries);
           toast.warning(`Imported ${validBeneficiaries.length} beneficiaries. ${beneficiaries.length - validBeneficiaries.length} entries were invalid and skipped.`);
@@ -91,7 +127,7 @@ const ExcelImport: React.FC = () => {
         <CardTitle>Import Beneficiaries from Excel</CardTitle>
         <CardDescription>
           Upload an Excel file (.xlsx, .xls) containing beneficiary information.
-          Required columns: name, accountNumber, ifscCode.
+          Required columns: name, account number, IFSC code.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -135,9 +171,10 @@ const ExcelImport: React.FC = () => {
         <div className="text-sm text-gray-500">
           <p className="font-medium mb-1">Excel file format:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Column headers should match field names (name, accountNumber, ifscCode, etc.)</li>
-            <li>Account type: use 10 for Saving, 11 for Current</li>
-            <li>All account numbers will be treated as text to preserve formatting</li>
+            <li>We recognize various column header formats (e.g., "Name", "name", "NAME", etc.)</li>
+            <li>Required fields: Name, Account Number, IFSC Code</li>
+            <li>For Account Type: "Savings"/"Current" or "10"/"11" are both accepted</li>
+            <li>Optional fields: Place, Email, Mobile</li>
           </ul>
         </div>
       </CardFooter>
