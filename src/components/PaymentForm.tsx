@@ -32,6 +32,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
 
   // Filter beneficiaries based on search term
   const filteredBeneficiaries = beneficiaries.filter(beneficiary => {
+    if (!searchValue.trim()) return true;
+    
     const searchLower = searchValue.toLowerCase();
     return (
       beneficiary.name.toLowerCase().includes(searchLower) ||
@@ -126,34 +128,36 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
                     />
                   </div>
                   <CommandEmpty>No beneficiary found.</CommandEmpty>
-                  <CommandGroup className="max-h-[300px] overflow-auto">
-                    {filteredBeneficiaries.map((beneficiary) => (
-                      <CommandItem
-                        key={beneficiary.id}
-                        value={beneficiary.id}
-                        onSelect={() => {
-                          setSelectedBeneficiary(beneficiary.id);
-                          setCommandOpen(false);
-                        }}
-                        className="flex flex-col items-start py-3"
-                      >
-                        <div className="flex items-center w-full">
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedBeneficiary === beneficiary.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <div>
-                            <div className="font-medium">{beneficiary.name}</div>
-                            <div className="text-xs text-muted-foreground font-mono">
-                              {formatAccountNumber(beneficiary.accountNumber)}
+                  <CommandList>
+                    <CommandGroup>
+                      {filteredBeneficiaries.map((beneficiary) => (
+                        <CommandItem
+                          key={beneficiary.id}
+                          value={beneficiary.id}
+                          onSelect={() => {
+                            setSelectedBeneficiary(beneficiary.id);
+                            setCommandOpen(false);
+                          }}
+                          className="flex flex-col items-start py-3"
+                        >
+                          <div className="flex items-center w-full">
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedBeneficiary === beneficiary.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <div>
+                              <div className="font-medium">{beneficiary.name}</div>
+                              <div className="text-xs text-muted-foreground font-mono">
+                                {formatAccountNumber(beneficiary.accountNumber)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
                 </Command>
               </PopoverContent>
             </Popover>

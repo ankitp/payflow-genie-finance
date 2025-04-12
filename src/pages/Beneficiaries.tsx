@@ -50,7 +50,7 @@ const Beneficiaries = () => {
         </div>
 
         {isAdding ? (
-          <BeneficiaryForm onCancel={handleCancel} />
+          <BeneficiaryForm onCancel={handleCancel} beneficiaryToEdit={beneficiaryToEdit} />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
