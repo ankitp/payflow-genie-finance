@@ -30,17 +30,27 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
   const [commandOpen, setCommandOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Filter beneficiaries based on search term
+  // Improved search filtering function with console logging for debugging
   const filteredBeneficiaries = beneficiaries.filter(beneficiary => {
-    if (!searchValue.trim()) return true;
+    if (!searchValue || searchValue.trim() === '') return true;
     
-    const searchLower = searchValue.toLowerCase();
-    return (
-      beneficiary.name.toLowerCase().includes(searchLower) ||
-      beneficiary.accountNumber.includes(searchValue) ||
-      beneficiary.ifscCode.toLowerCase().includes(searchLower)
-    );
+    const searchLower = searchValue.toLowerCase().trim();
+    
+    const nameMatch = beneficiary.name.toLowerCase().includes(searchLower);
+    const accountMatch = beneficiary.accountNumber.includes(searchValue);
+    const ifscMatch = beneficiary.ifscCode.toLowerCase().includes(searchLower);
+    
+    return nameMatch || accountMatch || ifscMatch;
   });
+
+  // Log filtered results when search changes for debugging
+  useEffect(() => {
+    console.log(`Search term: "${searchValue}"`);
+    console.log(`Filtered beneficiaries count: ${filteredBeneficiaries.length}`);
+    if (filteredBeneficiaries.length < 5) {
+      console.log("Filtered results:", filteredBeneficiaries.map(b => b.name));
+    }
+  }, [searchValue, filteredBeneficiaries]);
 
   // Update beneficiary details when selection changes
   useEffect(() => {
