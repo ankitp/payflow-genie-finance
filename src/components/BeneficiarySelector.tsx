@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Beneficiary } from '@/context/AppContext';
-import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -67,15 +67,12 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <div className="flex items-center border-b px-3">
-            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-            <CommandInput 
-              placeholder="Search beneficiary..." 
-              value={searchValue}
-              onValueChange={setSearchValue}
-              className="h-9"
-            />
-          </div>
+          <CommandInput 
+            placeholder="Search beneficiary..." 
+            value={searchValue}
+            onValueChange={setSearchValue}
+            className="h-9"
+          />
           <CommandEmpty>No beneficiary found.</CommandEmpty>
           <CommandList>
             <CommandGroup>
