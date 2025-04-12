@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAppContext, Beneficiary, Payment } from '@/context/AppContext';
+import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,11 +12,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import BeneficiarySelector from './BeneficiarySelector';
+import BeneficiaryDetails from './BeneficiaryDetails';
 
 interface PaymentFormProps {
   onAddPayment: () => void;
@@ -24,78 +23,42 @@ interface PaymentFormProps {
 
 const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
   const { beneficiaries, addPayment } = useAppContext();
-  const [selectedBeneficiary, setSelectedBeneficiary] = useState<string>('');
+  const [selectedBeneficiaryId, setSelectedBeneficiaryId] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [beneficiaryDetails, setBeneficiaryDetails] = useState<Beneficiary | null>(null);
-  const [commandOpen, setCommandOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-
-  // Improved search filtering function with console logging for debugging
-  const filteredBeneficiaries = beneficiaries.filter(beneficiary => {
-    if (!searchValue || searchValue.trim() === '') return true;
-    
-    const searchLower = searchValue.toLowerCase().trim();
-    
-    const nameMatch = beneficiary.name.toLowerCase().includes(searchLower);
-    const accountMatch = beneficiary.accountNumber.includes(searchValue);
-    const ifscMatch = beneficiary.ifscCode.toLowerCase().includes(searchLower);
-    
-    return nameMatch || accountMatch || ifscMatch;
-  });
-
-  // Log filtered results when search changes for debugging
-  useEffect(() => {
-    console.log(`Search term: "${searchValue}"`);
-    console.log(`Filtered beneficiaries count: ${filteredBeneficiaries.length}`);
-    if (filteredBeneficiaries.length < 5) {
-      console.log("Filtered results:", filteredBeneficiaries.map(b => b.name));
-    }
-  }, [searchValue, filteredBeneficiaries]);
 
   // Update beneficiary details when selection changes
   useEffect(() => {
-    if (selectedBeneficiary) {
-      const beneficiary = beneficiaries.find(b => b.id === selectedBeneficiary);
+    if (selectedBeneficiaryId) {
+      const beneficiary = beneficiaries.find(b => b.id === selectedBeneficiaryId);
       if (beneficiary) {
         setBeneficiaryDetails(beneficiary);
       }
     } else {
       setBeneficiaryDetails(null);
     }
-  }, [selectedBeneficiary, beneficiaries]);
+  }, [selectedBeneficiaryId, beneficiaries]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedBeneficiary || !amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    if (!selectedBeneficiaryId || !amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       toast.error('Please select a beneficiary and enter a valid amount');
       return;
     }
     
     addPayment({
-      beneficiaryId: selectedBeneficiary,
+      beneficiaryId: selectedBeneficiaryId,
       amount: Number(amount),
     });
     
     // Reset form
-    setSelectedBeneficiary('');
+    setSelectedBeneficiaryId('');
     setAmount('');
     setBeneficiaryDetails(null);
-    setSearchValue('');
     
     toast.success('Payment added successfully');
     onAddPayment();
-  };
-
-  const getAccountTypeDisplay = (accountType: string) => {
-    if (accountType === "10") return "Saving Account";
-    if (accountType === "11") return "Current Account";
-    return accountType;
-  };
-
-  // Format account number to ensure it's displayed as a string without exponential notation
-  const formatAccountNumber = (accountNumber: string) => {
-    return accountNumber.toString().replace(/(.{4})/g, "$1 ").trim();
   };
 
   return (
@@ -110,92 +73,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="beneficiary">Beneficiary</Label>
-            <Popover open={commandOpen} onOpenChange={setCommandOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={commandOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedBeneficiary ? (
-                    beneficiaries.find((b) => b.id === selectedBeneficiary)?.name || "Select beneficiary"
-                  ) : (
-                    "Select beneficiary"
-                  )}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <div className="flex items-center border-b px-3">
-                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                    <CommandInput 
-                      placeholder="Search beneficiary..." 
-                      value={searchValue}
-                      onValueChange={setSearchValue}
-                      className="h-9"
-                    />
-                  </div>
-                  <CommandEmpty>No beneficiary found.</CommandEmpty>
-                  <CommandList>
-                    <CommandGroup>
-                      {filteredBeneficiaries.map((beneficiary) => (
-                        <CommandItem
-                          key={beneficiary.id}
-                          value={beneficiary.id}
-                          onSelect={() => {
-                            setSelectedBeneficiary(beneficiary.id);
-                            setCommandOpen(false);
-                          }}
-                          className="flex flex-col items-start py-3"
-                        >
-                          <div className="flex items-center w-full">
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedBeneficiary === beneficiary.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            <div>
-                              <div className="font-medium">{beneficiary.name}</div>
-                              <div className="text-xs text-muted-foreground font-mono">
-                                {formatAccountNumber(beneficiary.accountNumber)}
-                              </div>
-                            </div>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <BeneficiarySelector 
+              beneficiaries={beneficiaries}
+              selectedBeneficiaryId={selectedBeneficiaryId}
+              onBeneficiarySelect={setSelectedBeneficiaryId}
+            />
           </div>
           
           {beneficiaryDetails && (
-            <div className="p-3 bg-finance-border rounded-md space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-xs text-gray-500">Account Number</p>
-                  <p className="text-sm font-medium font-mono">{formatAccountNumber(beneficiaryDetails.accountNumber)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">IFSC Code</p>
-                  <p className="text-sm font-medium">{beneficiaryDetails.ifscCode}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-xs text-gray-500">Account Type</p>
-                  <p className="text-sm font-medium">{getAccountTypeDisplay(beneficiaryDetails.accountType)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Place</p>
-                  <p className="text-sm font-medium">{beneficiaryDetails.place}</p>
-                </div>
-              </div>
-            </div>
+            <BeneficiaryDetails beneficiary={beneficiaryDetails} />
           )}
           
           <div className="space-y-2">
