@@ -33,6 +33,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
       const beneficiary = beneficiaries.find(b => b.id === selectedBeneficiaryId);
       if (beneficiary) {
         setBeneficiaryDetails(beneficiary);
+        console.log('Selected beneficiary:', beneficiary.name);
       }
     } else {
       setBeneficiaryDetails(null);
@@ -60,6 +61,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onAddPayment }) => {
     toast.success('Payment added successfully');
     onAddPayment();
   };
+
+  // Log available beneficiaries for debugging
+  useEffect(() => {
+    console.log(`Total beneficiaries available: ${beneficiaries.length}`);
+    if (beneficiaries.length > 0 && beneficiaries.length < 5) {
+      console.log('Sample beneficiaries:', beneficiaries.slice(0, 3).map(b => b.name));
+    }
+  }, [beneficiaries]);
 
   return (
     <Card>

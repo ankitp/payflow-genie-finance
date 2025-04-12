@@ -21,20 +21,22 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   
-  // Filter beneficiaries based on search term
-  const filteredBeneficiaries = beneficiaries.filter(beneficiary => {
-    if (!searchValue || searchValue.trim() === '') return true;
+  // Improved filtering logic for better search results
+  const filteredBeneficiaries = React.useMemo(() => {
+    if (!searchValue || searchValue.trim() === '') return beneficiaries;
     
     const searchLower = searchValue.toLowerCase().trim();
     
-    const nameMatch = beneficiary.name.toLowerCase().includes(searchLower);
-    const accountMatch = beneficiary.accountNumber.toLowerCase().includes(searchLower);
-    const ifscMatch = beneficiary.ifscCode.toLowerCase().includes(searchLower);
-    
-    return nameMatch || accountMatch || ifscMatch;
-  });
+    return beneficiaries.filter(beneficiary => {
+      const nameMatch = beneficiary.name.toLowerCase().includes(searchLower);
+      const accountMatch = beneficiary.accountNumber.toLowerCase().includes(searchLower);
+      const ifscMatch = beneficiary.ifscCode.toLowerCase().includes(searchLower);
+      
+      return nameMatch || accountMatch || ifscMatch;
+    });
+  }, [beneficiaries, searchValue]);
 
-  // Log filtered results when search changes for debugging
+  // Debug filtered results
   useEffect(() => {
     console.log(`Search term: "${searchValue}"`);
     console.log(`Filtered beneficiaries count: ${filteredBeneficiaries.length}`);
@@ -83,6 +85,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
                   onSelect={() => {
                     onBeneficiarySelect(beneficiary.id);
                     setOpen(false);
+                    setSearchValue(""); // Clear search when an item is selected
                   }}
                   className="flex flex-col items-start py-3"
                 >
