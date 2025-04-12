@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext, Beneficiary } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,11 +19,21 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BeneficiaryFormProps {
   onCancel: () => void;
   beneficiaryToEdit?: Beneficiary;
 }
+
+const accountTypes = [
+  { value: "10", label: "Saving Account" },
+  { value: "11", label: "Current Account" },
+  { value: "other", label: "Other" }
+];
 
 const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiaryToEdit }) => {
   const { addBeneficiary, updateBeneficiary } = useAppContext();
@@ -37,10 +46,25 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
     email: beneficiaryToEdit?.email || '',
     mobile: beneficiaryToEdit?.mobile || '',
   });
+  const [formattedAccountNumber, setFormattedAccountNumber] = useState('');
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (formData.accountNumber) {
+      setFormattedAccountNumber(formatAccountNumber(formData.accountNumber));
+    }
+  }, [formData.accountNumber]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'accountNumber') {
+      const rawValue = value.replace(/\s/g, '');
+      setFormData(prev => ({ ...prev, [name]: rawValue }));
+      setFormattedAccountNumber(formatAccountNumber(rawValue));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleAccountTypeChange = (value: string) => {
@@ -50,7 +74,6 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
     if (!formData.name || !formData.accountNumber || !formData.ifscCode || !formData.accountType) {
       toast.error('Please fill all required fields');
       return;
@@ -65,6 +88,10 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
     }
     
     onCancel();
+  };
+
+  const formatAccountNumber = (accountNumber: string): string => {
+    return accountNumber.replace(/(.{4})/g, "$1 ").trim();
   };
 
   return (
@@ -95,7 +122,7 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
                 id="accountNumber"
                 name="accountNumber"
                 placeholder="Enter account number"
-                value={formData.accountNumber}
+                value={formattedAccountNumber}
                 onChange={handleChange}
                 required
               />
@@ -116,19 +143,47 @@ const BeneficiaryForm: React.FC<BeneficiaryFormProps> = ({ onCancel, beneficiary
             </div>
             <div className="space-y-2">
               <Label htmlFor="accountType">Account Type *</Label>
-              <Select
-                value={formData.accountType}
-                onValueChange={handleAccountTypeChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select account type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">Saving Account</SelectItem>
-                  <SelectItem value="11">Current Account</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                  >
+                    {formData.accountType
+                      ? accountTypes.find((type) => type.value === formData.accountType)?.label
+                      : "Select account type"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search account type..." />
+                    <CommandEmpty>No account type found.</CommandEmpty>
+                    <CommandGroup>
+                      {accountTypes.map((type) => (
+                        <CommandItem
+                          key={type.value}
+                          value={type.value}
+                          onSelect={(value) => {
+                            handleAccountTypeChange(value);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              formData.accountType === type.value ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {type.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           
